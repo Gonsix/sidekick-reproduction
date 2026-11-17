@@ -1,0 +1,23 @@
+{
+  "generated_utc": "2026-11-17T05:25:55.754887+00:00",
+  "original_successful_trials": 44,
+  "primary_trials": 35,
+  "audit_b": 6,
+  "audit_c": 12,
+  "files": {
+    "fig4c_results.png": "cabdad9c0dec173b1651dfc2da7c7e804508764038851b5b3fbd7262d9b12b14",
+    "report_data.json": "122b78b9cb5e5f8b8c44b81dbe8c1b3093d837b1fd0921926f05ecc0386d2b9e",
+    "figure4c_summary.csv": "15a592fc03504c66c42e3209fe12d74fed8056de965fa2e38d77286753fd5d51",
+    "fig4c_results.svg": "14014b9e67340628123f29e65a0f103800985905c0ef830a69a46d426779a434",
+    "fig4a_results.png": "371213bee6760566d15d9452a7050cfa48042d4a30fb513dec6372d6dae8a076",
+    "fig4a_results.svg": "b5dbe529ed009e21cdc0ee10fb3f2a6d7cb737c97a9a18dbc23703c3030eb794",
+    "figure4a_summary.csv": "91aee708b96a0facc9318633e1f1ee8112cd8186dd8196734036e0aeb359ced5",
+    "fig4b_results.png": "fc0b419c5e3e5a449e19245baa1ce834d1aa3a5fd6bcc8a992538a7473caf0b7",
+    "figure4b_summary.csv": "4301fb69f9de62e6a8220f0a230abf4680ecb04949fbc7bb2112284220f8163e",
+    "all_original_trials.csv": "bb73a311580a0ac6f8f3495188160cb5ada1e50e88c845e303ab87693e92c84c",
+    "fig4b_results.svg": "a302390058ab427d8510bf0ca4c92c98eccfe5fda00ce44791b92a1abeb63fb5",
+    "cause_audit_b.csv": "9413c082b3aab6564d85dc9dd8ef42a246fb4ce9b56aa02ebe264b5784a0c049",
+    "cause_audit_c.csv": "3591598d416755b098986ff57a6fa1a944f8b3791f9f5be7094b66da87dc5fad"
+  },
+  "results_md_sha256": "0875257e5a0d5d05fc6f9354aaf8a0183b3c6fe101814662bf94cc8566282575"
+}

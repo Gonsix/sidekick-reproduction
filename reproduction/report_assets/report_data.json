@@ -1,0 +1,570 @@
+{
+  "original_trials": 44,
+  "primary_trials": 35,
+  "by_figure": {
+    "a": 4,
+    "b": 26,
+    "c": 14
+  },
+  "a": [
+    {
+      "condition": "Simple E2E",
+      "multiplier": 1,
+      "mode": "e2e",
+      "trials": 1,
+      "samples": 3000,
+      "p95_ms": 32.310083,
+      "p99_ms": 64.083127,
+      "p999_ms": 104.376145,
+      "max_ms": 104.462287,
+      "within_2.2_ms_pct": 88.46666666666667,
+      "within_5_ms_pct": 88.76666666666667,
+      "within_20_ms_pct": 91.83333333333333,
+      "within_50_ms_pct": 95.7,
+      "within_100_ms_pct": 99.66666666666667,
+      "within_150_ms_pct": 100.0,
+      "within_200_ms_pct": 100.0,
+      "source_csv": "/work/results/validation-final/040-a-e2e-n2000000-ack0-x1-trial0/media.csv",
+      "sha256": "72924b2d98a002b52ec4a18e4509ec18f11d29fe4374f24c4f019343c77d705c"
+    },
+    {
+      "condition": "Sidekick",
+      "multiplier": 1,
+      "mode": "early",
+      "trials": 1,
+      "samples": 3000,
+      "p95_ms": 2.130224,
+      "p99_ms": 22.241187,
+      "p999_ms": 52.154134,
+      "max_ms": 52.212253,
+      "within_2.2_ms_pct": 96.2,
+      "within_5_ms_pct": 97.93333333333334,
+      "within_20_ms_pct": 98.03333333333333,
+      "within_50_ms_pct": 99.9,
+      "within_100_ms_pct": 100.0,
+      "within_150_ms_pct": 100.0,
+      "within_200_ms_pct": 100.0,
+      "source_csv": "/work/results/validation-final/041-a-early-n2000000-ack0-x1-trial0/media.csv",
+      "sha256": "b86fd3c06166bd37c3f7d6f76301ab85dd6acf444c0cdb868b0a75a4206b68fd"
+    },
+    {
+      "condition": "Sidekick(2x)",
+      "multiplier": 2,
+      "mode": "early",
+      "trials": 1,
+      "samples": 3000,
+      "p95_ms": 12.152403,
+      "p99_ms": 52.140578,
+      "p999_ms": 52.312772,
+      "max_ms": 62.377371,
+      "within_2.2_ms_pct": 93.7,
+      "within_5_ms_pct": 94.7,
+      "within_20_ms_pct": 95.66666666666667,
+      "within_50_ms_pct": 98.9,
+      "within_100_ms_pct": 100.0,
+      "within_150_ms_pct": 100.0,
+      "within_200_ms_pct": 100.0,
+      "source_csv": "/work/results/validation-final/042-a-early-n2000000-ack0-x2-trial0/media.csv",
+      "sha256": "30996928cc5b272abb4859ae4673eab60cb132f290f348edfc87c6fdcb74c8e2"
+    },
+    {
+      "condition": "Sidekick(4x)",
+      "multiplier": 4,
+      "mode": "early",
+      "trials": 1,
+      "samples": 3000,
+      "p95_ms": 24.405665,
+      "p99_ms": 52.243061,
+      "p999_ms": 104.294822,
+      "max_ms": 104.398207,
+      "within_2.2_ms_pct": 91.66666666666667,
+      "within_5_ms_pct": 92.43333333333334,
+      "within_20_ms_pct": 94.23333333333333,
+      "within_50_ms_pct": 97.43333333333334,
+      "within_100_ms_pct": 99.8,
+      "within_150_ms_pct": 100.0,
+      "within_200_ms_pct": 100.0,
+      "source_csv": "/work/results/validation-final/043-a-early-n2000000-ack0-x4-trial0/media.csv",
+      "sha256": "b06234b523497ca230055f8d99179aa6e06b40fbef35ffcf30a1121c04a5e743"
+    }
+  ],
+  "b": [
+    {
+      "condition": "QUIC E2E",
+      "mode": "e2e",
+      "multiplier": 1,
+      "size_MB": 1.0,
+      "trials": 2,
+      "median_mbps": 5.113767087670461,
+      "q25_mbps": 2.826338810497905,
+      "q75_mbps": 7.4011953648430175,
+      "trial_mbps": [
+        7.4011953648430175,
+        2.826338810497905
+      ]
+    },
+    {
+      "condition": "早期再送のみ",
+      "mode": "early",
+      "multiplier": 1,
+      "size_MB": 1.0,
+      "trials": 2,
+      "median_mbps": 7.398407559029954,
+      "q25_mbps": 7.374497952360487,
+      "q75_mbps": 7.422317165699421,
+      "trial_mbps": [
+        7.422317165699421,
+        7.374497952360487
+      ]
+    },
+    {
+      "condition": "Sidekick",
+      "mode": "pacubic",
+      "multiplier": 1,
+      "size_MB": 1.0,
+      "trials": 2,
+      "median_mbps": 7.42209278172562,
+      "q25_mbps": 7.325745075067331,
+      "q75_mbps": 7.518440488383909,
+      "trial_mbps": [
+        7.518440488383909,
+        7.325745075067331
+      ]
+    },
+    {
+      "condition": "QUIC E2E",
+      "mode": "e2e",
+      "multiplier": 1,
+      "size_MB": 2.0,
+      "trials": 1,
+      "median_mbps": 5.169759217007242,
+      "q25_mbps": 5.169759217007242,
+      "q75_mbps": 5.169759217007242,
+      "trial_mbps": [
+        5.169759217007242
+      ]
+    },
+    {
+      "condition": "早期再送のみ",
+      "mode": "early",
+      "multiplier": 1,
+      "size_MB": 2.0,
+      "trials": 1,
+      "median_mbps": 5.472206607746185,
+      "q25_mbps": 5.472206607746185,
+      "q75_mbps": 5.472206607746185,
+      "trial_mbps": [
+        5.472206607746185
+      ]
+    },
+    {
+      "condition": "Sidekick",
+      "mode": "pacubic",
+      "multiplier": 1,
+      "size_MB": 2.0,
+      "trials": 1,
+      "median_mbps": 8.2864029149469,
+      "q25_mbps": 8.2864029149469,
+      "q75_mbps": 8.2864029149469,
+      "trial_mbps": [
+        8.2864029149469
+      ]
+    },
+    {
+      "condition": "QUIC E2E",
+      "mode": "e2e",
+      "multiplier": 1,
+      "size_MB": 10.0,
+      "trials": 2,
+      "median_mbps": 8.07161335239321,
+      "q25_mbps": 7.1446286420465,
+      "q75_mbps": 8.99859806273992,
+      "trial_mbps": [
+        8.99859806273992,
+        7.1446286420465
+      ]
+    },
+    {
+      "condition": "早期再送のみ",
+      "mode": "early",
+      "multiplier": 1,
+      "size_MB": 10.0,
+      "trials": 2,
+      "median_mbps": 3.624521780431085,
+      "q25_mbps": 3.168033354929369,
+      "q75_mbps": 4.0810102059328015,
+      "trial_mbps": [
+        3.168033354929369,
+        4.0810102059328015
+      ]
+    },
+    {
+      "condition": "Sidekick",
+      "mode": "pacubic",
+      "multiplier": 1,
+      "size_MB": 10.0,
+      "trials": 2,
+      "median_mbps": 9.079893275307294,
+      "q25_mbps": 9.046236193269504,
+      "q75_mbps": 9.113550357345083,
+      "trial_mbps": [
+        9.113550357345083,
+        9.046236193269504
+      ]
+    },
+    {
+      "condition": "Sidekick(2x)",
+      "mode": "pacubic",
+      "multiplier": 2,
+      "size_MB": 10.0,
+      "trials": 1,
+      "median_mbps": 9.094717347741376,
+      "q25_mbps": 9.094717347741376,
+      "q75_mbps": 9.094717347741376,
+      "trial_mbps": [
+        9.094717347741376
+      ]
+    },
+    {
+      "condition": "Sidekick(4x)",
+      "mode": "pacubic",
+      "multiplier": 4,
+      "size_MB": 10.0,
+      "trials": 1,
+      "median_mbps": 9.08461054872345,
+      "q25_mbps": 9.08461054872345,
+      "q75_mbps": 9.08461054872345,
+      "trial_mbps": [
+        9.08461054872345
+      ]
+    }
+  ],
+  "c": [
+    {
+      "condition": "QUIC E2E",
+      "mode": "e2e",
+      "multiplier": 1,
+      "ack_interval_ms": 0,
+      "trials": 2,
+      "median_mbps": 9.086272849168942,
+      "q25_mbps": 9.085783202801155,
+      "q75_mbps": 9.08676249553673,
+      "median_ack_packets": 7257.0,
+      "min_ack_packets": 7243,
+      "max_ack_packets": 7271,
+      "trial_mbps": [
+        9.085783202801155,
+        9.08676249553673
+      ],
+      "trial_ack_packets": [
+        7243,
+        7271
+      ]
+    },
+    {
+      "condition": "Sidekick",
+      "mode": "ack",
+      "multiplier": 1,
+      "ack_interval_ms": 0,
+      "trials": 2,
+      "median_mbps": 9.06485943596507,
+      "q25_mbps": 9.057565617669132,
+      "q75_mbps": 9.072153254261009,
+      "median_ack_packets": 7295.0,
+      "min_ack_packets": 7198,
+      "max_ack_packets": 7392,
+      "trial_mbps": [
+        9.057565617669132,
+        9.072153254261009
+      ],
+      "trial_ack_packets": [
+        7392,
+        7198
+      ]
+    },
+    {
+      "condition": "QUIC E2E",
+      "mode": "e2e",
+      "multiplier": 1,
+      "ack_interval_ms": 80,
+      "trials": 2,
+      "median_mbps": 9.01360895212122,
+      "q25_mbps": 9.010812101937809,
+      "q75_mbps": 9.016405802304634,
+      "median_ack_packets": 111.0,
+      "min_ack_packets": 111,
+      "max_ack_packets": 111,
+      "trial_mbps": [
+        9.016405802304634,
+        9.010812101937809
+      ],
+      "trial_ack_packets": [
+        111,
+        111
+      ]
+    },
+    {
+      "condition": "Sidekick",
+      "mode": "ack",
+      "multiplier": 1,
+      "ack_interval_ms": 80,
+      "trials": 2,
+      "median_mbps": 9.086330291481975,
+      "q25_mbps": 9.081675467658764,
+      "q75_mbps": 9.090985115305186,
+      "median_ack_packets": 110.0,
+      "min_ack_packets": 110,
+      "max_ack_packets": 110,
+      "trial_mbps": [
+        9.081675467658764,
+        9.090985115305186
+      ],
+      "trial_ack_packets": [
+        110,
+        110
+      ]
+    },
+    {
+      "condition": "QUIC E2E",
+      "mode": "e2e",
+      "multiplier": 1,
+      "ack_interval_ms": 320,
+      "trials": 2,
+      "median_mbps": 8.078509304820816,
+      "q25_mbps": 8.076991248010657,
+      "q75_mbps": 8.080027361630975,
+      "median_ack_packets": 31.0,
+      "min_ack_packets": 31,
+      "max_ack_packets": 31,
+      "trial_mbps": [
+        8.080027361630975,
+        8.076991248010657
+      ],
+      "trial_ack_packets": [
+        31,
+        31
+      ]
+    },
+    {
+      "condition": "Sidekick",
+      "mode": "ack",
+      "multiplier": 1,
+      "ack_interval_ms": 320,
+      "trials": 2,
+      "median_mbps": 9.087961147334664,
+      "q25_mbps": 9.08517988562142,
+      "q75_mbps": 9.090742409047905,
+      "median_ack_packets": 28.0,
+      "min_ack_packets": 28,
+      "max_ack_packets": 28,
+      "trial_mbps": [
+        9.090742409047905,
+        9.08517988562142
+      ],
+      "trial_ack_packets": [
+        28,
+        28
+      ]
+    },
+    {
+      "condition": "Sidekick(2x)",
+      "mode": "ack",
+      "multiplier": 2,
+      "ack_interval_ms": 320,
+      "trials": 1,
+      "median_mbps": 8.943288114219603,
+      "q25_mbps": 8.943288114219603,
+      "q75_mbps": 8.943288114219603,
+      "median_ack_packets": 28,
+      "min_ack_packets": 28,
+      "max_ack_packets": 28,
+      "trial_mbps": [
+        8.943288114219603
+      ],
+      "trial_ack_packets": [
+        28
+      ]
+    },
+    {
+      "condition": "Sidekick(4x)",
+      "mode": "ack",
+      "multiplier": 4,
+      "ack_interval_ms": 320,
+      "trials": 1,
+      "median_mbps": 8.994162964072203,
+      "q25_mbps": 8.994162964072203,
+      "q75_mbps": 8.994162964072203,
+      "median_ack_packets": 28,
+      "min_ack_packets": 28,
+      "max_ack_packets": 28,
+      "trial_mbps": [
+        8.994162964072203
+      ],
+      "trial_ack_packets": [
+        28
+      ]
+    }
+  ],
+  "audit_b": [
+    {
+      "mode": "e2e",
+      "rollback": "on",
+      "trials": 2,
+      "median_mbps": 9.029149440280253,
+      "trial_mbps": [
+        9.026624525728652,
+        9.031674354831857
+      ],
+      "restores": [
+        38,
+        26
+      ]
+    },
+    {
+      "mode": "e2e",
+      "rollback": "off",
+      "trials": 2,
+      "median_mbps": 2.1738484547563606,
+      "trial_mbps": [
+        1.9958658731032837,
+        2.3518310364094375
+      ],
+      "restores": [
+        0,
+        0
+      ]
+    },
+    {
+      "mode": "pacubic",
+      "rollback": "off",
+      "trials": 2,
+      "median_mbps": 9.10980547806819,
+      "trial_mbps": [
+        9.113517332004614,
+        9.106093624131766
+      ],
+      "restores": [
+        0,
+        0
+      ]
+    }
+  ],
+  "audit_c": [
+    {
+      "queue": "htb",
+      "rollback": "off",
+      "mode": "ack",
+      "trials": 2,
+      "median_mbps": 9.089986357088836,
+      "trial_mbps": [
+        9.091124577421718,
+        9.088848136755956
+      ],
+      "median_ack_packets": 110.0,
+      "restores": [
+        0,
+        0
+      ],
+      "median_queue_drops": 1814.0
+    },
+    {
+      "queue": "htb",
+      "rollback": "off",
+      "mode": "e2e",
+      "trials": 2,
+      "median_mbps": 9.00989956242826,
+      "trial_mbps": [
+        9.009102831510322,
+        9.010696293346198
+      ],
+      "median_ack_packets": 111.0,
+      "restores": [
+        0,
+        0
+      ],
+      "median_queue_drops": 1557.5
+    },
+    {
+      "queue": "htb",
+      "rollback": "on",
+      "mode": "e2e",
+      "trials": 2,
+      "median_mbps": 9.010066299381332,
+      "trial_mbps": [
+        9.009479327165252,
+        9.01065327159741
+      ],
+      "median_ack_packets": 111.0,
+      "restores": [
+        0,
+        0
+      ],
+      "median_queue_drops": 1563.5
+    },
+    {
+      "queue": "red",
+      "rollback": "off",
+      "mode": "ack",
+      "trials": 2,
+      "median_mbps": 8.862660018851525,
+      "trial_mbps": [
+        8.858804882616287,
+        8.866515155086763
+      ],
+      "median_ack_packets": 113.0,
+      "restores": [
+        0,
+        0
+      ],
+      "median_queue_drops": 304.5
+    },
+    {
+      "queue": "red",
+      "rollback": "off",
+      "mode": "e2e",
+      "trials": 2,
+      "median_mbps": 6.650586782949103,
+      "trial_mbps": [
+        6.498286522306054,
+        6.802887043592153
+      ],
+      "median_ack_packets": 150.5,
+      "restores": [
+        0,
+        0
+      ],
+      "median_queue_drops": 5.5
+    },
+    {
+      "queue": "red",
+      "rollback": "on",
+      "mode": "e2e",
+      "trials": 2,
+      "median_mbps": 7.4050837846159965,
+      "trial_mbps": [
+        7.4785093824479425,
+        7.33165818678405
+      ],
+      "median_ack_packets": 135.5,
+      "restores": [
+        32,
+        30
+      ],
+      "median_queue_drops": 86.0
+    }
+  ],
+  "measured_environment": {
+    "base": "a4ac85642eca40e45cc6e0cfd916d55b81537e2c",
+    "branch": "sidekick/independent-fig4-abc",
+    "platform": "Linux-7.0.0-29-generic-x86_64-with-glibc2.35",
+    "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)\nbinary: rustc\ncommit-hash: 0ef1bc386059596dada8fb65b50425aab2ea637a\ncommit-date: 2026-11-09\nhost: x86_64-unknown-linux-gnu\nrelease: 1.100.0\nLLVM version: 23.1.5\n",
+    "cargo_lock_sha256": "d4611d54dd674e9debbfc7e113932881d858765b1f668e96b08342d7c86410b7",
+    "binary_sha256": {
+      "sidekick_transfer": "b43932f86cf88e1ddca370b3a4b5a5e53b7479bc9eee3b27d10dc7b094a12ed2",
+      "sidekick_proxy": "3ff0cdb219aae8d69f5810cc1da88a06f935c1b9c80f5cce8a4323d19b304d4e",
+      "sidekick_media": "c16ecc35c912ab7a39219b620cc5816f158df00ba8211667c36d87a3acc9ca34"
+    },
+    "kernel_loss_seed": "uncontrolled kernel RNG",
+    "note": "short-run validation and representative one-minute media; not full paper trial count"
+  }
+}
