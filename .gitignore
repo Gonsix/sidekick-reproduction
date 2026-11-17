@@ -2,3 +2,7 @@
 **/*.rs.bk
 **/Cargo.lock
 **/*.*qlog
+
+# Independent Sidekick lab
+/reproduction/*.pem
+/reproduction/__pycache__/

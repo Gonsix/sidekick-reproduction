@@ -77,6 +77,12 @@ const PACING_MULTIPLIER: f64 = 1.25;
 pub(super) const MAX_OUTSTANDING_NON_ACK_ELICITING: usize = 24;
 
 pub struct Recovery {
+    sidekick_ratio: Option<f64>,
+    sidekick_early_packets: u64,
+    sidekick_estimated_ratio: Option<f64>,
+    sidekick_near: std::collections::HashSet<u64>,
+    sidekick_credited: std::collections::HashSet<u64>,
+
     loss_detection_timer: Option<Instant>,
 
     pto_count: u32,
@@ -240,6 +246,11 @@ impl Recovery {
             in_flight_count: [0; packet::Epoch::count()],
 
             congestion_window: initial_congestion_window,
+            sidekick_ratio: None,
+            sidekick_early_packets: 0,
+            sidekick_estimated_ratio: None,
+            sidekick_near: std::collections::HashSet::new(),
+            sidekick_credited: std::collections::HashSet::new(),
 
             pkt_thresh: INITIAL_PACKET_THRESHOLD,
 
@@ -313,9 +324,9 @@ impl Recovery {
     /// Returns whether or not we should elicit an ACK even if we wouldn't
     /// otherwise have constructed an ACK eliciting packet.
     pub fn should_elicit_ack(&self, epoch: packet::Epoch) -> bool {
-        self.loss_probes[epoch] > 0 ||
-            self.outstanding_non_ack_eliciting >=
-                MAX_OUTSTANDING_NON_ACK_ELICITING
+        self.loss_probes[epoch] > 0
+            || self.outstanding_non_ack_eliciting
+                >= MAX_OUTSTANDING_NON_ACK_ELICITING
     }
 
     pub fn on_packet_sent(
@@ -355,9 +366,9 @@ impl Recovery {
         }
 
         // HyStart++: Start of the round in a slow start.
-        if self.hystart.enabled() &&
-            epoch == packet::Epoch::Application &&
-            self.congestion_window < self.ssthresh
+        if self.hystart.enabled()
+            && epoch == packet::Epoch::Application
+            && self.congestion_window < self.ssthresh
         {
             self.hystart.start_round(pkt_num);
         }
@@ -365,8 +376,8 @@ impl Recovery {
         // Pacing: Set the pacing rate if CC doesn't do its own.
         if !(self.cc_ops.has_custom_pacing)() {
             if let Some(srtt) = self.smoothed_rtt {
-                let rate = PACING_MULTIPLIER * self.congestion_window as f64 /
-                    srtt.as_secs_f64();
+                let rate = PACING_MULTIPLIER * self.congestion_window as f64
+                    / srtt.as_secs_f64();
                 self.set_pacing_rate(rate as u64, now);
             }
         }
@@ -420,6 +431,95 @@ impl Recovery {
     }
 
     #[allow(clippy::too_many_arguments)]
+    pub(crate) fn sidekick_disable(&mut self) {
+        self.sidekick_near.clear();
+        self.sidekick_ratio = None;
+        self.sidekick_estimated_ratio = None;
+        self.cubic_state
+            .clear_sidekick(self.congestion_window, self.max_datagram_size);
+        // Outstanding proxy credits settle on end-to-end ACKs. Keeping this
+        // accounting prevents double growth during a live switch back to QUIC.
+    }
+    pub(crate) fn sidekick_retransmissions(&self) -> u64 {
+        self.sidekick_early_packets
+    }
+
+    pub(crate) fn sidekick_on_feedback(
+        &mut self, report: &crate::sidekick::Report,
+        options: &crate::sidekick::Options, now: Instant,
+    ) {
+        let epoch = packet::Epoch::Application;
+        self.sidekick_estimated_ratio = if options.pacubic {
+            report.near_rtt.map(|d| {
+                (d.as_secs_f64() / self.rtt().as_secs_f64()).clamp(0.01, 1.0)
+            })
+        } else {
+            None
+        };
+        if options.pacubic {
+            self.sidekick_near.extend(report.lost.iter().copied());
+        }
+        if options.early_retransmit {
+            let numbers: std::collections::HashSet<u64> =
+                report.lost.iter().copied().collect();
+            let mut bytes = 0;
+            let mut largest = None;
+            for p in self.sent[epoch].iter_mut() {
+                if numbers.contains(&p.pkt_num)
+                    && p.time_acked.is_none()
+                    && p.time_lost.is_none()
+                {
+                    if self.sidekick_credited.remove(&p.pkt_num) {
+                        self.bytes_in_flight += p.size;
+                    }
+                    self.lost[epoch].extend(p.frames.drain(..));
+                    p.time_lost = Some(now);
+                    if p.in_flight {
+                        bytes += p.size;
+                        largest = Some(p.clone());
+                        self.in_flight_count[epoch] =
+                            self.in_flight_count[epoch].saturating_sub(1);
+                    }
+                    self.lost_count += 1;
+                    self.sidekick_early_packets += 1;
+                }
+            }
+            self.bytes_lost += bytes as u64;
+            if let Some(p) = largest {
+                self.on_packets_lost(bytes, &p, epoch, now);
+            }
+        }
+        if options.ack_reduction {
+            let numbers: std::collections::HashSet<u64> =
+                report.received.iter().copied().collect();
+            let mut acked = vec![];
+            for p in self.sent[epoch].iter() {
+                if numbers.contains(&p.pkt_num)
+                    && p.in_flight
+                    && p.time_acked.is_none()
+                    && p.time_lost.is_none()
+                    && self.sidekick_credited.insert(p.pkt_num)
+                {
+                    acked.push(Acked {
+                        pkt_num: p.pkt_num,
+                        time_sent: p.time_sent,
+                        size: p.size,
+                        rtt: now.saturating_duration_since(p.time_sent),
+                        delivered: p.delivered,
+                        delivered_time: p.delivered_time,
+                        first_sent_time: p.first_sent_time,
+                        is_app_limited: p.is_app_limited,
+                    });
+                }
+            }
+            // Deliberately do not drain p.frames or set time_acked: only an
+            // authenticated end-to-end QUIC ACK may release reliable data.
+            if !acked.is_empty() {
+                self.on_packets_acked(&mut acked, epoch, now);
+            }
+        }
+    }
+
     pub fn on_ack_received(
         &mut self, ranges: &ranges::RangeSet, ack_delay: u64,
         epoch: packet::Epoch, handshake_status: HandshakeStatus, now: Instant,
@@ -467,6 +567,7 @@ impl Recovery {
 
             for unacked in unacked_iter {
                 unacked.time_acked = Some(now);
+                self.sidekick_near.remove(&unacked.pkt_num);
 
                 // Check if acked packet was already declared lost.
                 if unacked.time_lost.is_some() {
@@ -482,8 +583,8 @@ impl Recovery {
 
                     // unacked.time_sent can be in the future due to
                     // pacing.
-                    if now.saturating_duration_since(unacked.time_sent) >
-                        loss_delay
+                    if now.saturating_duration_since(unacked.time_sent)
+                        > loss_delay
                     {
                         // TODO: do time threshold update
                         self.time_thresh = 5_f64 / 4_f64;
@@ -516,7 +617,11 @@ impl Recovery {
 
                     time_sent: unacked.time_sent,
 
-                    size: unacked.size,
+                    size: if self.sidekick_credited.remove(&unacked.pkt_num) {
+                        0
+                    } else {
+                        unacked.size
+                    },
 
                     rtt: now.saturating_duration_since(unacked.time_sent),
 
@@ -682,8 +787,8 @@ impl Recovery {
         }
 
         // Open more space (snd_cnt) for PRR when allowed.
-        self.congestion_window.saturating_sub(self.bytes_in_flight) +
-            self.prr.snd_cnt
+        self.congestion_window.saturating_sub(self.bytes_in_flight)
+            + self.prr.snd_cnt
     }
 
     pub fn rtt(&self) -> Duration {
@@ -719,8 +824,8 @@ impl Recovery {
             cmp::min(self.max_datagram_size, new_max_datagram_size);
 
         // Update cwnd if it hasn't been updated yet.
-        if self.congestion_window ==
-            self.max_datagram_size * INITIAL_WINDOW_PACKETS
+        if self.congestion_window
+            == self.max_datagram_size * INITIAL_WINDOW_PACKETS
         {
             self.congestion_window = max_datagram_size * INITIAL_WINDOW_PACKETS;
         }
@@ -764,8 +869,8 @@ impl Recovery {
                     latest_rtt
                 };
 
-                self.rttvar = self.rttvar.mul_f64(3.0 / 4.0) +
-                    sub_abs(srtt, adjusted_rtt).mul_f64(1.0 / 4.0);
+                self.rttvar = self.rttvar.mul_f64(3.0 / 4.0)
+                    + sub_abs(srtt, adjusted_rtt).mul_f64(1.0 / 4.0);
 
                 self.smoothed_rtt = Some(
                     srtt.mul_f64(7.0 / 8.0) + adjusted_rtt.mul_f64(1.0 / 8.0),
@@ -891,9 +996,14 @@ impl Recovery {
 
         for unacked in unacked_iter {
             // Mark packet as lost, or set time when it should be marked.
-            if unacked.time_sent <= lost_send_time ||
-                largest_acked >= unacked.pkt_num + self.pkt_thresh
+            if unacked.time_sent <= lost_send_time
+                || largest_acked >= unacked.pkt_num + self.pkt_thresh
             {
+                // Credit only changes congestion accounting. Restore before a
+                // real loss so far-path losses retain an ordinary CUBIC response.
+                if self.sidekick_credited.remove(&unacked.pkt_num) {
+                    self.bytes_in_flight += unacked.size;
+                }
                 self.lost[epoch].extend(unacked.frames.drain(..));
 
                 unacked.time_lost = Some(now);
@@ -922,8 +1032,9 @@ impl Recovery {
                 let loss_time = match self.loss_time[epoch] {
                     None => unacked.time_sent + loss_delay,
 
-                    Some(loss_time) =>
-                        cmp::min(loss_time, unacked.time_sent + loss_delay),
+                    Some(loss_time) => {
+                        cmp::min(loss_time, unacked.time_sent + loss_delay)
+                    },
                 };
 
                 self.loss_time[epoch] = Some(loss_time);
@@ -989,8 +1100,9 @@ impl Recovery {
 
     fn in_congestion_recovery(&self, sent_time: Instant) -> bool {
         match self.congestion_recovery_start_time {
-            Some(congestion_recovery_start_time) =>
-                sent_time <= congestion_recovery_start_time,
+            Some(congestion_recovery_start_time) => {
+                sent_time <= congestion_recovery_start_time
+            },
 
             None => false,
         }
@@ -1009,7 +1121,14 @@ impl Recovery {
     ) {
         self.bytes_in_flight = self.bytes_in_flight.saturating_sub(lost_bytes);
 
+        self.sidekick_ratio =
+            if self.sidekick_near.remove(&largest_lost_pkt.pkt_num) {
+                self.sidekick_estimated_ratio
+            } else {
+                None
+            };
         self.congestion_event(lost_bytes, largest_lost_pkt.time_sent, epoch, now);
+        self.sidekick_ratio = None;
 
         if self.in_persistent_congestion(largest_lost_pkt.pkt_num) {
             self.collapse_cwnd();
@@ -1072,11 +1191,11 @@ impl Recovery {
 #[repr(C)]
 pub enum CongestionControlAlgorithm {
     /// Reno congestion control algorithm. `reno` in a string form.
-    Reno  = 0,
+    Reno = 0,
     /// CUBIC congestion control algorithm (default). `cubic` in a string form.
     CUBIC = 1,
     /// BBR congestion control algorithm. `bbr` in a string form.
-    BBR   = 2,
+    BBR = 2,
 }
 
 impl FromStr for CongestionControlAlgorithm {
@@ -2172,3 +2291,163 @@ mod hystart;
 mod pacer;
 mod prr;
 mod reno;
+
+#[cfg(test)]
+mod independent_sidekick_tests {
+    use super::*;
+    use crate::sidekick::{Options, Report};
+    fn hs() -> HandshakeStatus {
+        HandshakeStatus {
+            has_handshake_keys: true,
+            peer_verified_address: true,
+            completed: true,
+        }
+    }
+    fn setup() -> (Recovery, Instant) {
+        let mut cfg = crate::Config::new(crate::PROTOCOL_VERSION).unwrap();
+        cfg.set_cc_algorithm(CongestionControlAlgorithm::CUBIC);
+        cfg.enable_hystart(false);
+        let mut r = Recovery::new(&cfg);
+        let now = Instant::now();
+        let p = Sent {
+            pkt_num: 1,
+            frames: smallvec::smallvec![frame::Frame::Stream {
+                stream_id: 0,
+                data: crate::stream::RangeBuf::from(b"reliable-data", 0, false)
+            }],
+            time_sent: now,
+            time_acked: None,
+            time_lost: None,
+            size: 1200,
+            ack_eliciting: true,
+            in_flight: true,
+            delivered: 0,
+            delivered_time: now,
+            first_sent_time: now,
+            is_app_limited: false,
+            has_data: true,
+        };
+        r.on_packet_sent(p, packet::Epoch::Application, hs(), now, "test");
+        (r, now)
+    }
+    fn options() -> Options {
+        Options {
+            enabled: true,
+            threshold: 10,
+            reorder_packets: 3,
+            ..Default::default()
+        }
+    }
+    #[test]
+    fn sidekick_credit_retains_data_and_real_ack_does_not_double_grow() {
+        let (mut r, now) = setup();
+        let epoch = packet::Epoch::Application;
+        let mut opts = options();
+        opts.ack_reduction = true;
+        let report = Report {
+            received: vec![1],
+            near_rtt: Some(Duration::from_millis(2)),
+            ..Default::default()
+        };
+        r.sidekick_on_feedback(&report, &opts, now + Duration::from_millis(2));
+        assert_eq!(r.sent[epoch][0].frames.len(), 1);
+        assert!(r.sent[epoch][0].time_acked.is_none());
+        assert_eq!(r.bytes_in_flight, 0);
+        assert!(r.acked[epoch].is_empty());
+        let cwnd = r.cwnd();
+        r.sidekick_on_feedback(&report, &opts, now + Duration::from_millis(3));
+        assert_eq!(r.cwnd(), cwnd);
+        assert_eq!(r.bytes_in_flight, 0);
+        let mut ranges = ranges::RangeSet::default();
+        ranges.insert(1..2);
+        r.on_ack_received(
+            &ranges,
+            0,
+            epoch,
+            hs(),
+            now + Duration::from_millis(52),
+            "test",
+            &mut vec![],
+        )
+        .unwrap();
+        assert_eq!(r.cwnd(), cwnd);
+        assert_eq!(r.bytes_in_flight, 0);
+        assert_eq!(r.acked[epoch].len(), 1);
+        assert!(
+            matches!(&r.acked[epoch][0],frame::Frame::Stream{data,..} if data.as_ref()==b"reliable-data")
+        );
+    }
+    #[test]
+    fn sidekick_early_loss_queues_original_frames_once() {
+        let (mut r, now) = setup();
+        let epoch = packet::Epoch::Application;
+        let mut opts = options();
+        opts.early_retransmit = true;
+        let report = Report {
+            lost: vec![1],
+            near_rtt: Some(Duration::from_millis(2)),
+            ..Default::default()
+        };
+        r.sidekick_on_feedback(&report, &opts, now + Duration::from_millis(2));
+        assert_eq!(r.lost_count, 1);
+        assert_eq!(r.bytes_in_flight, 0);
+        assert_eq!(r.lost[epoch].len(), 1);
+        assert!(r.sent[epoch][0].time_acked.is_none());
+        assert!(r.sent[epoch][0].time_lost.is_some());
+        assert!(r.sent[epoch][0].frames.is_empty());
+        r.sidekick_on_feedback(&report, &opts, now + Duration::from_millis(3));
+        assert_eq!(r.lost_count, 1);
+        assert_eq!(r.lost[epoch].len(), 1);
+    }
+    #[test]
+    fn sidekick_loss_after_credit_has_no_double_accounting() {
+        let (mut r, now) = setup();
+        let mut opts = options();
+        opts.ack_reduction = true;
+        r.sidekick_on_feedback(
+            &Report {
+                received: vec![1],
+                ..Default::default()
+            },
+            &opts,
+            now + Duration::from_millis(2),
+        );
+        opts.early_retransmit = true;
+        r.sidekick_on_feedback(
+            &Report {
+                lost: vec![1],
+                ..Default::default()
+            },
+            &opts,
+            now + Duration::from_millis(3),
+        );
+        assert_eq!(r.bytes_in_flight, 0);
+        assert_eq!(r.lost_count, 1);
+        assert_eq!(r.lost[packet::Epoch::Application].len(), 1);
+        assert!(r.sidekick_credited.is_empty());
+    }
+    #[test]
+    fn sidekick_pacubic_has_path_scaled_beta_and_c() {
+        let (mut r, now) = setup();
+        let prior = r.cwnd();
+        let rtt = r.rtt();
+        let mut opts = options();
+        opts.early_retransmit = true;
+        opts.pacubic = true;
+        let near = Duration::from_millis(2);
+        r.sidekick_on_feedback(
+            &Report {
+                lost: vec![1],
+                near_rtt: Some(near),
+                ..Default::default()
+            },
+            &opts,
+            now + near,
+        );
+        let (beta, _) = crate::sidekick::pacubic_parameters(
+            near.as_secs_f64() / rtt.as_secs_f64(),
+        );
+        assert_eq!(r.cwnd(), (prior as f64 * beta) as usize);
+        assert!(r.sidekick_ratio.is_none());
+    }
+}

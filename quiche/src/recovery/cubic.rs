@@ -80,6 +80,8 @@ const ALPHA_AIMD: f64 = 3.0 * (1.0 - BETA_CUBIC) / (1.0 + BETA_CUBIC);
 /// k, w_max, w_est are described in the RFC.
 #[derive(Debug, Default)]
 pub struct State {
+    sidekick_c: Option<f64>,
+
     k: f64,
 
     w_max: f64,
@@ -122,20 +124,27 @@ struct PriorState {
 /// not packets.
 /// Unit of t (duration) and RTT are based on seconds (f64).
 impl State {
+    pub(super) fn clear_sidekick(&mut self, cwnd: usize, mds: usize) {
+        if self.sidekick_c.take().is_some() {
+            self.k = self.cubic_k(cwnd, mds).max(0.0);
+        }
+    }
+
     // K = cubic_root ((w_max - cwnd) / C) (Eq. 2)
     fn cubic_k(&self, cwnd: usize, max_datagram_size: usize) -> f64 {
         let w_max = self.w_max / max_datagram_size as f64;
         let cwnd = cwnd as f64 / max_datagram_size as f64;
 
-        libm::cbrt((w_max - cwnd) / C)
+        libm::cbrt((w_max - cwnd) / self.sidekick_c.unwrap_or(C))
     }
 
     // W_cubic(t) = C * (t - K)^3 + w_max (Eq. 1)
     fn w_cubic(&self, t: Duration, max_datagram_size: usize) -> f64 {
         let w_max = self.w_max / max_datagram_size as f64;
 
-        (C * (t.as_secs_f64() - self.k).powi(3) + w_max) *
-            max_datagram_size as f64
+        (self.sidekick_c.unwrap_or(C) * (t.as_secs_f64() - self.k).powi(3)
+            + w_max)
+            * max_datagram_size as f64
     }
 
     // W_est = W_est + alpha_aimd * (segments_acked / cwnd)  (Eq. 4)
@@ -235,9 +244,9 @@ fn on_packet_acked(
     // considered as spurious and restore to the previous state.
     if r.congestion_recovery_start_time.is_some() {
         let new_lost = r.lost_count - r.cubic_state.prior.lost_count;
-        let rollback_threshold = (r.congestion_window / r.max_datagram_size) *
-            ROLLBACK_THRESHOLD_PERCENT /
-            100;
+        let rollback_threshold = (r.congestion_window / r.max_datagram_size)
+            * ROLLBACK_THRESHOLD_PERCENT
+            / 100;
         let rollback_threshold = rollback_threshold.max(MIN_ROLLBACK_THRESHOLD);
 
         if new_lost < rollback_threshold {
@@ -356,17 +365,21 @@ fn congestion_event(
     // Start a new congestion event if packet was sent after the
     // start of the previous congestion recovery period.
     if !in_congestion_recovery {
+        let (beta, c) = r
+            .sidekick_ratio
+            .map(crate::sidekick::pacubic_parameters)
+            .unwrap_or((BETA_CUBIC, C));
+        r.cubic_state.sidekick_c = Some(c);
         r.congestion_recovery_start_time = Some(now);
 
         // Fast convergence
         if (r.congestion_window as f64) < r.cubic_state.w_max {
-            r.cubic_state.w_max =
-                r.congestion_window as f64 * (1.0 + BETA_CUBIC) / 2.0;
+            r.cubic_state.w_max = r.congestion_window as f64 * (1.0 + beta) / 2.0;
         } else {
             r.cubic_state.w_max = r.congestion_window as f64;
         }
 
-        r.ssthresh = (r.congestion_window as f64 * BETA_CUBIC) as usize;
+        r.ssthresh = (r.congestion_window as f64 * beta) as usize;
         r.ssthresh = cmp::max(
             r.ssthresh,
             r.max_datagram_size * recovery::MINIMUM_WINDOW_PACKETS,
@@ -380,8 +393,7 @@ fn congestion_event(
                 .cubic_k(r.congestion_window, r.max_datagram_size)
         };
 
-        r.cubic_state.cwnd_inc =
-            (r.cubic_state.cwnd_inc as f64 * BETA_CUBIC) as usize;
+        r.cubic_state.cwnd_inc = (r.cubic_state.cwnd_inc as f64 * beta) as usize;
 
         r.cubic_state.w_est = r.congestion_window as f64;
         r.cubic_state.alpha_aimd = ALPHA_AIMD;
@@ -850,9 +862,9 @@ mod tests {
         assert!(r.hystart.css_start_time().is_none());
         assert_eq!(
             r.cwnd(),
-            cwnd_prev +
-                r.max_datagram_size / hystart::CSS_GROWTH_DIVISOR *
-                    hystart::N_RTT_SAMPLE
+            cwnd_prev
+                + r.max_datagram_size / hystart::CSS_GROWTH_DIVISOR
+                    * hystart::N_RTT_SAMPLE
         );
     }
 
