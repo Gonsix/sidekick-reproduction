@@ -1674,6 +1674,11 @@ impl Default for QlogInfo {
 }
 
 impl Connection {
+    /// Count successful restorations by CUBIC's small-loss heuristic (audit only).
+    pub fn audit_cubic_rollbacks(&self) -> u64 {
+        self.paths.iter().map(|(_,p)|p.recovery.audit_heuristic_rollbacks).sum()
+    }
+
     /// Enables independent Sidekick features. Disabled is the default.
     pub fn configure_sidekick(
         &mut self, options: sidekick::Options, token: [u8; 16],

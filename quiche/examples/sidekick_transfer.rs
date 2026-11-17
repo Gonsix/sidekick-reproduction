@@ -330,7 +330,7 @@ fn run() -> Result<()> {
                     "bytes":if server{received}else{sent},"verified":verified,"sha256":result_digest,
                     "seconds":elapsed,"transfer_seconds":request_start.map(|t|t.elapsed().as_secs_f64()),
                     "goodput_mbps":amount as f64*8.0/elapsed/1e6,"ack_packets":c.ack_packets_sent(),
-                    "lost_packets":c.stats().lost,"early_retransmissions":c.sidekick_retransmissions(),"sidekick":stats(c)}),
+                    "audit_heuristic_rollbacks":c.audit_cubic_rollbacks(),"lost_packets":c.stats().lost,"early_retransmissions":c.sidekick_retransmissions(),"sidekick":stats(c)}),
                 );
                 return Ok(());
             }

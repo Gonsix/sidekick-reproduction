@@ -77,6 +77,7 @@ const PACING_MULTIPLIER: f64 = 1.25;
 pub(super) const MAX_OUTSTANDING_NON_ACK_ELICITING: usize = 24;
 
 pub struct Recovery {
+    pub(crate) audit_heuristic_rollbacks: u64,
     sidekick_ratio: Option<f64>,
     sidekick_early_packets: u64,
     sidekick_estimated_ratio: Option<f64>,
@@ -248,6 +249,7 @@ impl Recovery {
             congestion_window: initial_congestion_window,
             sidekick_ratio: None,
             sidekick_early_packets: 0,
+            audit_heuristic_rollbacks: 0,
             sidekick_estimated_ratio: None,
             sidekick_near: std::collections::HashSet::new(),
             sidekick_credited: std::collections::HashSet::new(),

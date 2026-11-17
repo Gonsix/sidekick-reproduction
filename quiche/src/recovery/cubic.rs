@@ -32,6 +32,12 @@
 //! Note that Slow Start can use HyStart++ when enabled.
 
 use std::cmp;
+static AUDIT_DISABLE_HEURISTIC_ROLLBACK: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+fn audit_rollback_enabled() -> bool {
+    !*AUDIT_DISABLE_HEURISTIC_ROLLBACK.get_or_init(||
+        std::env::var_os("SIDEKICK_AUDIT_DISABLE_ROLLBACK").is_some())
+}
+
 
 use std::time::Duration;
 use std::time::Instant;
@@ -242,7 +248,7 @@ fn on_packet_acked(
     // When the recovery episode ends with recovering
     // a few packets (less than cwnd / mss * ROLLBACK_THRESHOLD_PERCENT(%)), it's
     // considered as spurious and restore to the previous state.
-    if r.congestion_recovery_start_time.is_some() {
+    if audit_rollback_enabled() && r.congestion_recovery_start_time.is_some() {
         let new_lost = r.lost_count - r.cubic_state.prior.lost_count;
         let rollback_threshold = (r.congestion_window / r.max_datagram_size)
             * ROLLBACK_THRESHOLD_PERCENT
@@ -253,6 +259,7 @@ fn on_packet_acked(
             let did_rollback = rollback(r);
 
             if did_rollback {
+                r.audit_heuristic_rollbacks += 1;
                 return;
             }
         }
