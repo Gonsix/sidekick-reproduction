@@ -105,3 +105,17 @@ docker exec sidekick-independent python3 reproduction/run.py \
 
 長い論文規模の計画は `--suite paper --figure all` で開始できます。
 手順と予定試行数はREADMEを参照してください。
+
+## 図4Aの累積分布：50 / 100 / 150 / 200 ms以内
+
+![Simple E2EとSidekickの図4A比較](../../results/validation-final/fig4a-comparison/fig4a_e2e_sidekick_cdf.png)
+
+|条件|50 ms以内|100 ms以内|150 ms以内|200 ms以内|
+|---|---:|---:|---:|---:|
+|Simple E2E|95.70%|99.67%|100.00%|100.00%|
+|Sidekick（2パケットごと・t=8）|99.90%|100.00%|100.00%|100.00%|
+
+0 msも含む全3,000標本を分母にした累積割合です。各条件60秒・1試行です。
+図の縦軸86〜100%は論文と同じ拡大表示で、86%以上の標本だけを再集計したものではありません。
+作図スクリプトは `reproduction/plot_fig4a_comparison.py`。
+PNG/SVG、閾値ごとのCSVと出典CSVのSHA-256を `results/validation-final/fig4a-comparison/` に保存しています。
