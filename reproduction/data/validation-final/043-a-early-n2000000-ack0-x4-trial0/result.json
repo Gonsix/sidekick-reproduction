@@ -1,0 +1,44 @@
+{
+  "case": {
+    "figure": "a",
+    "mode": "early",
+    "trial": 0,
+    "size": 2000000,
+    "seconds": 60,
+    "ack_ms": 0,
+    "multiplier": 4,
+    "loss_override": null,
+    "far_loss": 0.0
+  },
+  "sender": {
+    "packets": 3000,
+    "protocol": "media",
+    "retrans_nack": 142,
+    "retrans_quack": 112,
+    "role": "sender",
+    "sidekick": {
+      "early_lost": 116,
+      "rejected": 0,
+      "resets": 0,
+      "valid": 375
+    },
+    "verified": true
+  },
+  "receiver": {
+    "nack_packets": 143,
+    "p95_ms": 24.405665,
+    "p999_ms": 104.294822,
+    "p99_ms": 52.243061,
+    "protocol": "media",
+    "role": "receiver",
+    "samples": 3000,
+    "verified": true
+  },
+  "proxy": {
+    "configurations": 1,
+    "observed": 3141,
+    "payload_bytes": 64288,
+    "quacks": 392,
+    "role": "proxy"
+  }
+}

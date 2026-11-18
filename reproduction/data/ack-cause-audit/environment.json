@@ -1,0 +1,9 @@
+{
+  "binary": "same audit binary as cubic-cause-audit",
+  "controlled_factors": [
+    "CUBIC rollback on/off",
+    "HTB-netem / netem-HTB-RED"
+  ],
+  "case": "Figure 4C, 10 MB, ACK interval 80 ms, 0% configured random loss",
+  "note": "RED may add congestion drops. Kernel loss traces are not paired."
+}

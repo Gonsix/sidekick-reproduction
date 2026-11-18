@@ -1,0 +1,182 @@
+{
+  "sk0650c360s:s-eth": [
+    {
+      "kind": "htb",
+      "handle": "1:",
+      "root": true,
+      "refcnt": 17,
+      "options": {
+        "r2q": 10,
+        "default": "0x1",
+        "direct_packets_stat": 0,
+        "direct_qlen": 1000
+      },
+      "bytes": 995645,
+      "packets": 3103,
+      "drops": 121,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    },
+    {
+      "kind": "netem",
+      "handle": "10:",
+      "parent": "1:1",
+      "options": {
+        "limit": 1000,
+        "delay": {
+          "delay": 0.001,
+          "jitter": 0,
+          "correlation": 0
+        },
+        "loss-random": {
+          "loss": 0.036,
+          "correlation": 0
+        },
+        "ecn": false,
+        "gap": 0
+      },
+      "bytes": 995645,
+      "packets": 3103,
+      "drops": 121,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    }
+  ],
+  "sk0650c360r:r-near": [
+    {
+      "kind": "htb",
+      "handle": "1:",
+      "root": true,
+      "refcnt": 17,
+      "options": {
+        "r2q": 10,
+        "default": "0x1",
+        "direct_packets_stat": 0,
+        "direct_qlen": 1000
+      },
+      "bytes": 18034,
+      "packets": 218,
+      "drops": 12,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    },
+    {
+      "kind": "netem",
+      "handle": "10:",
+      "parent": "1:1",
+      "options": {
+        "limit": 1000,
+        "delay": {
+          "delay": 0.001,
+          "jitter": 0,
+          "correlation": 0
+        },
+        "loss-random": {
+          "loss": 0.036,
+          "correlation": 0
+        },
+        "ecn": false,
+        "gap": 0
+      },
+      "bytes": 18034,
+      "packets": 218,
+      "drops": 12,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    }
+  ],
+  "sk0650c360r:r-far": [
+    {
+      "kind": "htb",
+      "handle": "1:",
+      "root": true,
+      "refcnt": 17,
+      "options": {
+        "r2q": 10,
+        "default": "0x1",
+        "direct_packets_stat": 0,
+        "direct_qlen": 1000
+      },
+      "bytes": 995253,
+      "packets": 3099,
+      "drops": 0,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    },
+    {
+      "kind": "netem",
+      "handle": "10:",
+      "parent": "1:1",
+      "options": {
+        "limit": 1000,
+        "delay": {
+          "delay": 0.025,
+          "jitter": 0,
+          "correlation": 0
+        },
+        "ecn": false,
+        "gap": 0
+      },
+      "bytes": 995253,
+      "packets": 3099,
+      "drops": 0,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    }
+  ],
+  "sk0650c360d:d-eth": [
+    {
+      "kind": "htb",
+      "handle": "1:",
+      "root": true,
+      "refcnt": 17,
+      "options": {
+        "r2q": 10,
+        "default": "0x1",
+        "direct_packets_stat": 0,
+        "direct_qlen": 1000
+      },
+      "bytes": 18570,
+      "packets": 225,
+      "drops": 0,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    },
+    {
+      "kind": "netem",
+      "handle": "10:",
+      "parent": "1:1",
+      "options": {
+        "limit": 1000,
+        "delay": {
+          "delay": 0.025,
+          "jitter": 0,
+          "correlation": 0
+        },
+        "ecn": false,
+        "gap": 0
+      },
+      "bytes": 18570,
+      "packets": 225,
+      "drops": 0,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    }
+  ]
+}

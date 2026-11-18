@@ -1,3 +1,33 @@
+# Sidekick 図4A・4B・4C 独立再現実装
+
+Cloudflare quiche 0.17.2をベースに、UDPでの早期再送、QUICでの早期再送・PACUBIC・ACK削減を実装した実験リポジトリです。
+
+- [実測レポート](reproduction/RESULTS.md)
+- [実行手順・機能スイッチ](reproduction/README.md)
+- [測定データ・レポートの再生成](reproduction/data/README.md)
+- 原因調査の計測コードと手順はブランチ `sidekick-causal-audit` の `reproduction/CAUSE_AUDIT.md` にあります。
+
+ローカルにクローンした後、以下をリポジトリのルートから実行すると、テスト用コンテナでビルド・疎通確認できます。
+
+```sh
+git submodule update --init --recursive
+mkdir -p results
+docker build -t sidekick-reproduction-env reproduction
+docker run --rm --privileged \
+  -v "$PWD:/work/quiche" \
+  -w /work/quiche sidekick-reproduction-env \
+  bash -lc 'git config --global --add safe.directory /work/quiche &&
+            bash reproduction/build.sh &&
+            python3 reproduction/run.py --suite smoke --figure all --output results/smoke-01'
+```
+
+元の44条件を再度実行する場合は、コンテナ内で
+`python3 reproduction/run_validation.py --output results/validation-new` を実行します。
+
+以下は上流quicheのREADMEです。
+
+---
+
 ![quiche](quiche.svg)
 
 [![crates.io](https://img.shields.io/crates/v/quiche.svg)](https://crates.io/crates/quiche)

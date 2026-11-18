@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import json,csv,bisect,collections,statistics,hashlib,math,datetime
-R=Path('/work/results'); O=R/'validation-final'; D=R/'detailed-report-20261117'; A=D/'report_assets'
+import argparse
+
+parser = argparse.ArgumentParser(description="Regenerate the report from saved Sidekick measurements")
+parser.add_argument("--results-root", type=Path, default=Path(__file__).resolve().parent / "data")
+parser.add_argument("--output", type=Path, default=Path("results/detailed-report"))
+args = parser.parse_args()
+R = args.results_root
+O = R / "validation-final"
+D = args.output
+A = D / "report_assets"
+
 A.mkdir(parents=True,exist_ok=True)
 def read(p):return json.loads(Path(p).read_text())
 def save(p,d):Path(p).write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')

@@ -1,0 +1,54 @@
+{
+  "case": {
+    "figure": "b",
+    "mode": "e2e",
+    "trial": 0,
+    "size": 1000000,
+    "seconds": 10,
+    "ack_ms": 0,
+    "multiplier": 1,
+    "loss_override": null,
+    "far_loss": 0.0
+  },
+  "sender": {
+    "ack_packets": 37,
+    "bytes": 1000000,
+    "early_retransmissions": 0,
+    "goodput_mbps": 7.4011953648430175,
+    "lost_packets": 7,
+    "protocol": "h3",
+    "role": "sender",
+    "seconds": 1.080906476,
+    "sha256": "30bd6d97affa9196b48cf4f86569c1a6a2d2fcf7d8c25771526f5e5596e7ae2e",
+    "sidekick": {
+      "early_lost": 0,
+      "proxy_received": 0,
+      "rejected": 0,
+      "resets": 0,
+      "valid": 0
+    },
+    "transfer_seconds": 1.027264937,
+    "verified": true
+  },
+  "receiver": {
+    "ack_packets": 867,
+    "bytes": 1000000,
+    "early_retransmissions": 0,
+    "goodput_mbps": 6.623405134340134,
+    "lost_packets": 8,
+    "protocol": "h3",
+    "role": "receiver",
+    "seconds": 1.207837938,
+    "sha256": "30bd6d97affa9196b48cf4f86569c1a6a2d2fcf7d8c25771526f5e5596e7ae2e",
+    "sidekick": {
+      "early_lost": 0,
+      "proxy_received": 0,
+      "rejected": 0,
+      "resets": 0,
+      "valid": 0
+    },
+    "transfer_seconds": null,
+    "verified": true
+  },
+  "proxy": null
+}

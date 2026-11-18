@@ -1,0 +1,39 @@
+{
+  "case": {
+    "figure": "b",
+    "mode": "e2e",
+    "trial": 1,
+    "size": 10000000,
+    "seconds": 10,
+    "ack_ms": 0,
+    "multiplier": 1,
+    "loss_override": null,
+    "far_loss": 0.0
+  },
+  "status": "passed",
+  "start_utc": "2026-11-17T05:08:17Z",
+  "network": {
+    "near": {
+      "delay_ms": 1,
+      "mbps": 100,
+      "loss_pct": 1.0
+    },
+    "far": {
+      "delay_ms": 25,
+      "mbps": 10,
+      "loss_pct": 0.0
+    },
+    "qdisc": "HTB + netem (limit 1000), each egress direction"
+  },
+  "requested_features": {
+    "enabled": false,
+    "early_retransmit": false,
+    "pacubic": false,
+    "ack_reduction": false
+  },
+  "sidekick_parameters": {
+    "threshold": 10,
+    "interval_ms": 30,
+    "every_packets": 0
+  }
+}

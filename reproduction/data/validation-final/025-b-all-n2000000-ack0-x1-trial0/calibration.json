@@ -1,0 +1,12 @@
+[
+  {
+    "address": "10.200.1.1",
+    "status": 0,
+    "output": "PING 10.200.1.1 (10.200.1.1) 56(84) bytes of data.\n64 bytes from 10.200.1.1: icmp_seq=1 ttl=64 time=4.06 ms\n64 bytes from 10.200.1.1: icmp_seq=2 ttl=64 time=2.05 ms\n64 bytes from 10.200.1.1: icmp_seq=3 ttl=64 time=2.16 ms\n64 bytes from 10.200.1.1: icmp_seq=4 ttl=64 time=2.15 ms\n\n--- 10.200.1.1 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 151ms\nrtt min/avg/max/mdev = 2.053/2.607/4.062/0.840 ms\n"
+  },
+  {
+    "address": "10.200.2.2",
+    "status": 0,
+    "output": "PING 10.200.2.2 (10.200.2.2) 56(84) bytes of data.\n64 bytes from 10.200.2.2: icmp_seq=1 ttl=63 time=103 ms\n64 bytes from 10.200.2.2: icmp_seq=2 ttl=63 time=52.1 ms\n64 bytes from 10.200.2.2: icmp_seq=3 ttl=63 time=52.2 ms\n64 bytes from 10.200.2.2: icmp_seq=4 ttl=63 time=52.2 ms\n\n--- 10.200.2.2 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 152ms\nrtt min/avg/max/mdev = 52.094/64.883/103.038/22.028 ms, pipe 3\n"
+  }
+]

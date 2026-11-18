@@ -1,0 +1,35 @@
+{
+  "case": {
+    "figure": "a",
+    "mode": "e2e",
+    "trial": 0,
+    "size": 2000000,
+    "seconds": 60,
+    "ack_ms": 0,
+    "multiplier": 1,
+    "loss_override": null,
+    "far_loss": 0.0
+  },
+  "sender": {
+    "packets": 3000,
+    "protocol": "media",
+    "retrans_nack": 195,
+    "retrans_quack": 0,
+    "role": "sender",
+    "sidekick": {
+      "valid": 0
+    },
+    "verified": true
+  },
+  "receiver": {
+    "nack_packets": 198,
+    "p95_ms": 32.310083,
+    "p999_ms": 104.376145,
+    "p99_ms": 64.083127,
+    "protocol": "media",
+    "role": "receiver",
+    "samples": 3000,
+    "verified": true
+  },
+  "proxy": null
+}
