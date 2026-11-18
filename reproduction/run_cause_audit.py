@@ -1,13 +1,16 @@
 from pathlib import Path
 import os,sys,json,hashlib,subprocess
-sys.path.insert(0,"/work/causal-audit-src/reproduction")
 from run import Case, run_case,save
-out=Path('/work/results/cubic-cause-audit')
+import argparse
+parser = argparse.ArgumentParser(description="Run the Figure 4B rollback audit")
+parser.add_argument("--output-root", type=Path, default=Path("results"))
+args = parser.parse_args()
+out = args.output_root.resolve() / "cubic-cause-audit"
 out.mkdir(parents=True,exist_ok=False)
-source=Path('/work/causal-audit-src')
+source=Path(__file__).resolve().parents[1]
 save(out/'environment.json',{
- "base_commit":"fdc6db75a942bb1554adf0ad07f271aefd4523f3",
- "audit_source":"/home/gonsix/orca/workspaces/quiche/sidekick-causal-audit",
+ "commit":subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip(),
+ "audit_source":str(source),
  "source_sha256":{str(p.relative_to(source)):hashlib.sha256(p.read_bytes()).hexdigest()
    for p in (source/'quiche/src').rglob('*.rs')},
  "binary_sha256":hashlib.sha256((source/'target/release/examples/sidekick_transfer').read_bytes()).hexdigest(),

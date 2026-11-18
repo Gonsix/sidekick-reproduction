@@ -17,3 +17,23 @@ Observed datasets:
 The runtime build snapshot is /home/gonsix/sidekick-independent/causal-audit-src in the dedicated container mount.
 These results are additional controlled trials and do not replace the original 44 trials.
 Loss traces are independent kernel RNG samples; there are two trials per setting.
+
+
+## Running from a fresh clone
+
+Check out this branch and initialize BoringSSL, then run the following from the
+repository root on Linux. The two audit scripts share the same output root.
+Choose a fresh path for each audit run.
+
+```sh
+git submodule update --init --recursive
+mkdir -p results
+docker build -t sidekick-audit-env reproduction
+docker run --rm --privileged \
+  -v "$PWD:/work/quiche" \
+  -w /work/quiche sidekick-audit-env \
+  bash -lc 'git config --global --add safe.directory /work/quiche &&
+            bash reproduction/build.sh &&
+            python3 reproduction/run_cause_audit.py --output-root results/audit-01 &&
+            python3 reproduction/run_remaining_audits.py --output-root results/audit-01'
+```

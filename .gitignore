@@ -4,5 +4,27 @@
 **/*.*qlog
 
 # Independent Sidekick lab
-/reproduction/*.pem
-/reproduction/__pycache__/
+# Keep the pinned workspace lockfile for reproducible builds.
+!/Cargo.lock
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+*.pcap
+*.pcapng
+/results/
+/causal-audit-src/
+/analyzer-fixture/
+/report_delivery*.tar.gz

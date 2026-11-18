@@ -1,9 +1,13 @@
 from pathlib import Path
 import os,sys,json
-sys.path.insert(0,"/work/causal-audit-src/reproduction")
 import run
 from run import Case,run_case,save
-out=Path('/work/results/cubic-cause-audit')
+import argparse
+parser = argparse.ArgumentParser(description="Complete the Figure 4B audit and run the Figure 4C queue audit")
+parser.add_argument("--output-root", type=Path, default=Path("results"))
+args = parser.parse_args()
+output_root = args.output_root.resolve()
+out = output_root / "cubic-cause-audit"
 results=json.loads((out/'results.json').read_text())
 os.environ["SIDEKICK_AUDIT_DISABLE_ROLLBACK"]="1"
 for i in range(2):
@@ -32,7 +36,8 @@ class RedTopology(OriginalTopology):
    return self
   except BaseException:
    self.__exit__(None,None,None);raise
-out=Path('/work/results/ack-cause-audit');out.mkdir(exist_ok=False)
+out = output_root / "ack-cause-audit"
+out.mkdir(exist_ok=False)
 save(out/'environment.json',{"binary":"same audit binary as cubic-cause-audit",
  "controlled_factors":["CUBIC rollback on/off","HTB-netem / netem-HTB-RED"],
  "case":"Figure 4C, 10 MB, ACK interval 80 ms, 0% configured random loss",
